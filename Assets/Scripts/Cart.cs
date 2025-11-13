@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Cart : MonoBehaviour
 {
     [SerializeField] private Transform _content;
     [SerializeField] private ProductCartView _prefab;
+    [SerializeField] private TMP_Text _count;
 
     private List<ProductInCart> _cartList = new List<ProductInCart>();
 
@@ -31,14 +33,38 @@ public class Cart : MonoBehaviour
         }
 
         productInCart.Prefab.UpdateInfo(product, productInCart.Count);
+        _count.text = $"ќформить ({Sum()})";
     }
 
     public void RemoveProduct(Product product)
     {
+        ProductInCart productInCart = FindProduct(product);
+        if (productInCart != null)
+        {
+            productInCart.Count--;
+            if (productInCart.Count == 0)
+            {
+                Destroy(productInCart.Prefab.gameObject);
+                _cartList.Remove(productInCart);
+            }
 
+            productInCart.Prefab.UpdateInfo(product, productInCart.Count);
+        }
+
+        _count.text = $"ќформить ({Sum()})";
     }
 
-    private ProductInCart FindProduct(Product product)
+    public int Sum()
+    {
+        int sum = 0;
+        foreach (ProductInCart item in _cartList)
+        {
+            sum += item.Count * item.Product.Price;
+        }
+        return sum;
+    }
+
+    public ProductInCart FindProduct(Product product)
     {
         foreach (ProductInCart item in _cartList)
         {
